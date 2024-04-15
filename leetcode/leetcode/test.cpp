@@ -349,3 +349,142 @@ public:
 };
 
 11.只出现一次的数字 II
+class Solution {
+public:
+    int singleNumber(vector<int>& nums)
+    {
+        vector<int> v;
+        v.resize(32);
+        for (int i = 0; i < nums.size(); i++)//获取每个nums的值；
+        {
+            for (int j = 0; j < 32; j++)
+            {
+                int tmp = nums[i];//定义一个临时变量来表示nums[i]的值
+                tmp = tmp >> j;//对nums[i]进行右移操作
+                if ((tmp & 1) == 1)//如果右移之后的nums[i]与1按位与等于1，即该nums[i]的第一位是1，记录下来++
+                {
+                    v[31 - j]++;
+                }
+            }
+        }
+
+        //一个数组里面存着一个数的而二进制位，要把这个二进制位转换成int类型的数的方法是：
+        //用数组按位与上0即可
+
+        int ret = 0;
+        for (int i = v.size() - 1; i >= 0; i--)//遍历数组v
+        {
+            v[i] %= 3;//对每个v[i]进行取模3，最后即可保留唯一出现一次数字的二进制码
+            if (v[i] == 1)
+            {
+                ret |= v[i] << (31 - i);
+            }
+        }
+
+        return ret;
+    }
+};
+
+12.只出现一次的数字 III
+class Solution {
+public:
+    vector<int> singleNumber(vector<int>& nums)
+    {
+        //将nums中的数全部异或在一起，找到唯一的两个数的异或结果
+        int result = 0;
+        for (int i = 0; i < nums.size(); i++)
+        {
+            result ^= nums[i];
+        }
+
+        //对异或的结果进行与它的相反数异或，可以获得result结果的只有第一位为1的数
+        int flag = (result == INT_MIN ? result : result & (-result));
+
+        int ret1 = 0;//第一组所有数异或的结果
+        int ret2 = 0;//第二组所有数异或的结果
+        //遍历nums进行分组
+        for (int i = 0; i < nums.size(); i++)
+        {
+            //cout<<tmp<<endl;
+            if ((nums[i] & flag) == 0)
+            {
+                ret1 ^= nums[i];
+            }
+            else
+            {
+                ret2 ^= nums[i];
+            }
+        }
+
+        vector<int> ret;
+        ret.push_back(ret1);
+        ret.push_back(ret2);
+        return ret;
+    }
+};
+
+13.电话号码的字母组合
+class Solution {
+public:
+    vector<string> letterCombinations(string digits)
+    {
+        vector<string> ret;//开辟是要返回的vector<string>
+
+        if (digits.size() == 0)
+        {
+            return ret;
+        }
+
+        vector<string> vs;
+        vs.resize(10);
+        vs[2] += "abc";
+        vs[3] += "def";
+        vs[4] += "ghi";
+        vs[5] += "jkl";
+        vs[6] += "mno";
+        vs[7] += "pqrs";
+        vs[8] += "tuv";
+        vs[9] += "wxyz";
+
+        //把所有可能的情况计算出来  有多少种
+        int sz = 1;
+        for (int i = 0; i < digits.size(); i++)
+        {
+            int flag = digits[i] - '0';
+            sz *= vs[flag].size();
+        }
+
+        ret.resize(sz);
+
+        for (int i = 0; i < digits.size(); i++)//遍历digits 如"237"
+        {
+            int flag = digits[i] - '0';//将字符 转换为 数字
+            sz /= vs[flag].size();//sz为每个字符要连续插入的次数
+
+            int count = 0;//记录每个字符插入了几次
+            int pos = 0;//记录插入的字符串是否越界，如果是，则回溯到0  如："abc"，c插入完后，有回溯到a
+
+            for (int j = 0; j < ret.size(); j++)//依次往ret里  插入字符
+            {
+                if (pos == vs[flag].size())
+                {
+                    pos = 0;
+                }
+                if (count < sz)
+                {
+                    ret[j] += vs[flag][pos];
+                }
+                else
+                {
+                    count = 0;
+                    pos++;
+                    j--;
+                    continue;
+                }
+                count++;
+            }
+        }
+
+        return ret;
+    }
+};
